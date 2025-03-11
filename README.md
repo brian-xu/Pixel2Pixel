@@ -22,7 +22,6 @@ Our experiments are done with:
 
 ## For Evaluation
 
-* For evaluation on synthetic noise, first run ``pixel2pixel_syn_fast.py`` to construct pixel bank and then run ``pix2pix_syn.py" 
+* For evaluation on synthetic noise, run ``Pixel2Pixel_syn.py`` 
 
-* For evaluation on real-world images, first run ``pixel2pixel_real_fast.py`` to construct pixel bank and then run ``pix2pix_real.py" 
-
+* For evaluation on real-world images, run ``Pixel2Pixel_real.py`` 
