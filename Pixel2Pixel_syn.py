@@ -28,7 +28,7 @@ parser.add_argument('--out_image', default='./results_image', type=str, help='Di
 parser.add_argument('--ws', default=34, type=int, help='Window size')
 parser.add_argument('--ps', default=7, type=int, help='Patch size')
 parser.add_argument('--nn', default=16, type=int, help='Number of nearest neighbors to search')
-parser.add_argument('--mm', default=2, type=int, help='Number of pixels in pixel bank to use for training')
+parser.add_argument('--mm', default=10, type=int, help='Number of pixels in pixel bank to use for training')
 parser.add_argument('--nl', default=50, type=float, help='Noise level')
 parser.add_argument('--nt', default='poiss', type=str, help='Noise type: gauss, poiss, saltpepper, bernoulli, impulse')
 parser.add_argument('--loss', default='L2', type=str, help='Loss function type')
