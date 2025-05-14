@@ -25,13 +25,13 @@ parser.add_argument('--data_path', default='../data', type=str, help='Path to th
 parser.add_argument('--dataset', default='kodak', type=str, help='Dataset name')
 parser.add_argument('--save', default='./results', type=str, help='Directory to save pixel bank results')
 parser.add_argument('--out_image', default='./results_image', type=str, help='Directory to save denoised images')
-parser.add_argument('--ws', default=34, type=int, help='Window size')
+parser.add_argument('--ws', default=40, type=int, help='Window size')
 parser.add_argument('--ps', default=7, type=int, help='Patch size')
 parser.add_argument('--nn', default=16, type=int, help='Number of nearest neighbors to search')
-parser.add_argument('--mm', default=10, type=int, help='Number of pixels in pixel bank to use for training')
-parser.add_argument('--nl', default=50, type=float, help='Noise level')
-parser.add_argument('--nt', default='poiss', type=str, help='Noise type: gauss, poiss, saltpepper, bernoulli, impulse')
-parser.add_argument('--loss', default='L2', type=str, help='Loss function type')
+parser.add_argument('--mm', default=8, type=int, help='Number of pixels in pixel bank to use for training')
+parser.add_argument('--nl', default=0.2, type=float, help='Noise level, for saltpepper and impulse noise, enter half the noise level.')
+parser.add_argument('--nt', default='bernoulli', type=str, help='Noise type: gauss, poiss, saltpepper, bernoulli, impulse')
+parser.add_argument('--loss', default='L1', type=str, help='Loss function type')
 args = parser.parse_args()
 
 
@@ -150,9 +150,20 @@ def construct_pixel_bank():
                 )
                 img_center = img_center[..., center_offset:center_offset + blk_sz, center_offset:center_offset + blk_sz]
 
-                # Compute L2 distances and select the most similar patches
-                l2_dis = torch.sum((img_center - patch_windows) ** 2, dim=1)
-                _, sort_indices = torch.topk(l2_dis, k=NUM_NEIGHBORS, largest=False, sorted=True, dim=-3)
+                if args.loss == 'L2':
+                    distance = torch.sum((img_center - patch_windows) ** 2, dim=1)
+                elif args.loss == 'L1':
+                    distance = torch.sum(torch.abs(img_center - patch_windows), dim=1)
+                else:
+                    raise ValueError(f"Unsupported loss type: {loss_type}")
+
+                _, sort_indices = torch.topk(
+                    distance,
+                    k=NUM_NEIGHBORS,
+                    largest=False,
+                    sorted=True,
+                    dim=-3
+                )
 
                 patch_windows_reshape = einops.rearrange(
                     patch_windows,
@@ -198,6 +209,7 @@ class Network(nn.Module):
         x = self.act(self.conv6(x))
         x = self.conv3(x)
         return torch.sigmoid(x)
+
 
     def _initialize_weights(self):
         for m in self.modules():
@@ -284,12 +296,12 @@ def denoise_images():
         if img_bank_arr.ndim == 3:
             img_bank_arr = np.expand_dims(img_bank_arr, axis=1)
         img_bank = img_bank_arr.astype(np.float32).transpose((2, 0, 1, 3))
-        if noise_type=='gauss' and noise_level==10:
+        if noise_type=='gauss' and noise_level==10 or noise_type=='bernoulli':
             args.mm=2
         elif noise_type=='gauss' and noise_level==25:
             args.mm = 4
         else:
-            args.mm = 10
+            args.mm = 8
         img_bank = img_bank[:args.mm]
 
         img_bank = torch.from_numpy(img_bank).to(device)
