@@ -21,7 +21,7 @@ import einops
 
 # -------------------------------
 parser = argparse.ArgumentParser('Pixel2Pixel')
-parser.add_argument('--data_path', default='../data', type=str, help='Path to the data')
+parser.add_argument('--data_path', default='./data', type=str, help='Path to the data')
 parser.add_argument('--dataset', default='kodak', type=str, help='Dataset name')
 parser.add_argument('--save', default='./results', type=str, help='Directory to save pixel bank results')
 parser.add_argument('--out_image', default='./results_image', type=str, help='Directory to save denoised images')
