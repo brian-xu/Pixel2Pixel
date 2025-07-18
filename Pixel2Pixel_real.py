@@ -21,7 +21,7 @@ import einops
 
 # -------------------------------
 parser = argparse.ArgumentParser('Pixel2Pixel')
-parser.add_argument('--data_path', default='../data', type=str, help='Path to the data')
+parser.add_argument('--data_path', default='./data', type=str, help='Path to the data')
 parser.add_argument('--dataset', default='SIDD', type=str, help='Dataset name')
 parser.add_argument('--GT', default='GT', type=str, help='Folder name for ground truth images')
 parser.add_argument('--Noisy', default='Noisy', type=str, help='Folder name for noisy images')
